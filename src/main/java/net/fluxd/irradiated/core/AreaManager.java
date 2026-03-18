@@ -8,13 +8,14 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 
 public class AreaManager {
-  public record CurrentAreaResult(String currentName, String approachingName, double distanceToBorder) {
+  public record CurrentAreaResult(String currentName, String approachingName, double distanceToBorder,
+      double borderAbsoluteRadius) {
   }
 
   public static CurrentAreaResult getCurrentArea(ServerPlayer player) {
     List<AreaEntry> entries = Config.areaEntries;
     if (entries == null || entries.isEmpty()) {
-      return new CurrentAreaResult("outside", "none", Double.MAX_VALUE);
+      return new CurrentAreaResult("outside", "none", Double.MAX_VALUE, 0);
     }
 
     BlockPos spawnPos = player.level().getSharedSpawnPos();
@@ -34,20 +35,17 @@ public class AreaManager {
         double distToOuter = outerRadius - currentDist;
 
         if (distToInner < distToOuter) {
-          // Closer to the inner ring
           String approaching = (i == 0) ? "Spawn" : entries.get(i - 1).name();
-          return new CurrentAreaResult(currentName, approaching, distToInner);
+          return new CurrentAreaResult(currentName, approaching, distToInner, innerRadius);
         } else {
-          // Closer to the outer ring
           String approaching = (i == entries.size() - 1) ? "outside" : entries.get(i + 1).name();
-          return new CurrentAreaResult(currentName, approaching, distToOuter);
+          return new CurrentAreaResult(currentName, approaching, distToOuter, outerRadius);
         }
       }
       cumulativeRadius = outerRadius;
     }
 
-    // If player is "outside" all defined zones
-    String lastAreaName = entries.get(entries.size() - 1).name();
-    return new CurrentAreaResult("outside", lastAreaName, currentDist - cumulativeRadius);
+    return new CurrentAreaResult("outside", entries.get(entries.size() - 1).name(), currentDist - cumulativeRadius,
+        cumulativeRadius);
   }
 }
