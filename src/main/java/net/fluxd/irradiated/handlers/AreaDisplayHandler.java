@@ -1,11 +1,11 @@
 package net.fluxd.irradiated.handlers;
 
+import net.fluxd.irradiated.Irradiated;
+import net.fluxd.irradiated.core.AreaManager;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.fluxd.irradiated.Irradiated;
-import net.fluxd.irradiated.core.AreaManager;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -17,50 +17,82 @@ import java.util.UUID;
 @Mod.EventBusSubscriber(modid = Irradiated.MODID)
 public class AreaDisplayHandler {
 
-  // Stores the last area name for every player online
-  private static final HashMap<UUID, String> playerAreaCache = new HashMap<>();
+  private static class PlayerAreaState {
+    String lastAreaName;
+    long announcementEndTime;
+    boolean wasShowingDistance;
+
+    PlayerAreaState(String lastAreaName, long announcementEndTime) {
+      this.lastAreaName = lastAreaName;
+      this.announcementEndTime = announcementEndTime;
+      this.wasShowingDistance = false;
+    }
+  }
+
+  private static final HashMap<UUID, PlayerAreaState> playerStates = new HashMap<>();
+  private static final double BORDER_THRESHOLD = 10.0;
+  private static final long ANNOUNCE_DURATION_MS = 1500;
 
   @SubscribeEvent
   public static void onPlayerTick(TickEvent.PlayerTickEvent event) {
-    // Run only on Server side, once per tick
     if (event.side.isServer() && event.phase == TickEvent.Phase.END) {
       ServerPlayer player = (ServerPlayer) event.player;
       UUID uuid = player.getUUID();
+      long now = System.currentTimeMillis();
 
-      // 1. Get the current area based on position
-      String currentArea = AreaManager.getCurrentArea(player);
+      AreaManager.CurrentAreaResult result = AreaManager.getCurrentArea(player);
+      PlayerAreaState state = playerStates.get(uuid);
 
-      // 2. Get the last known area (default to "none" if new)
-      String lastArea = playerAreaCache.getOrDefault(uuid, "none");
+      // Check change against the CURRENT area name
+      boolean areaChanged = (state == null || !result.currentName().equals(state.lastAreaName));
 
-      // 3. Only act if the area has changed
-      if (!currentArea.equals(lastArea)) {
-        sendAreaMessage(player, currentArea);
-        playerAreaCache.put(uuid, currentArea); // Update the cache
+      if (areaChanged) {
+        state = new PlayerAreaState(result.currentName(), now + ANNOUNCE_DURATION_MS);
+        playerStates.put(uuid, state);
+
+        playAreaSound(player);
+        displayMessage(player, result, true);
+      } else {
+        boolean isAnnouncing = now < state.announcementEndTime;
+        boolean nearBorder = result.distanceToBorder() < BORDER_THRESHOLD;
+
+        if (isAnnouncing) {
+          displayMessage(player, result, true);
+          state.wasShowingDistance = true;
+        } else if (nearBorder) {
+          displayMessage(player, result, false);
+          state.wasShowingDistance = true;
+        } else if (state.wasShowingDistance) {
+          player.displayClientMessage(Component.empty(), true);
+          state.wasShowingDistance = false;
+        }
       }
     }
   }
 
-  private static void sendAreaMessage(ServerPlayer player, String areaName) {
+  private static void displayMessage(ServerPlayer player, AreaManager.CurrentAreaResult result, boolean isAnnouncing) {
     Component message;
 
-    // Convert '&' to '§' (Standard Minecraft color formatting)
-    String formattedName = areaName.replace('&', '§');
+    if (isAnnouncing) {
+      String formattedName = result.currentName().replace('&', '§');
+      message = Component.literal("§eEntering: ").append(Component.literal(formattedName));
+    } else {
+      // Use approachingName when near border
+      String formattedApproaching = result.approachingName().replace('&', '§');
+      message = Component.literal("§7Approaching: ")
+          .append(Component.literal(formattedApproaching))
+          .append(Component.literal(String.format(" §7(%.1fm)", result.distanceToBorder())));
+    }
 
-    message = Component.literal("Entering: ")
-        .append(Component.literal(formattedName));
-
-    // The 'true' boolean here tells Minecraft to put it in the Action Bar
     player.displayClientMessage(message, true);
+  }
 
-    // and notify with sound
-    // TODO: add a toggle or remove sound, or play only when entering radiated zone
+  private static void playAreaSound(ServerPlayer player) {
     player.playNotifySound(SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.AMBIENT, 0.5f, 1.0f);
   }
 
-  // Clean up memory when player leaves
   @SubscribeEvent
   public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-    playerAreaCache.remove(event.getEntity().getUUID());
+    playerStates.remove(event.getEntity().getUUID());
   }
 }

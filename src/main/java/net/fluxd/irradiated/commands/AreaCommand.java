@@ -20,8 +20,9 @@ public class AreaCommand {
     if (player == null)
       return 0;
 
-    String area = AreaManager.getCurrentArea(player);
-    context.getSource().sendSuccess(() -> Component.literal("You are in " + area), false);
+    String name = AreaManager.getCurrentArea(player).currentName();
+    String formattedName = name.replace('&', '§');
+    context.getSource().sendSuccess(() -> Component.literal("You are in " + formattedName), false);
     return 1;
   }
 }
