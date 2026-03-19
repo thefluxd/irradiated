@@ -12,4 +12,8 @@ public class Utils {
       return false;
     }
   }
+
+  public static String formatString(String str) {
+    return str.replace('&', '§');
+  }
 }

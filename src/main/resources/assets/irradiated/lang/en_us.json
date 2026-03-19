@@ -1,0 +1,9 @@
+{
+  "effect.irradiated.radiation": "Radiation",
+  "effect.irradiated.protection": "Radiation Protection",
+  "effect.irradiated.weakened": "Weakened",
+  "effect.irradiated.overdose": "Overdose",
+  "item.irradiated.lugols_iodine": "Lugol's iodine",
+  "death.attack.irradiated_radiation": "%1$s fucking died from radiation poisoning",
+  "death.attack.irradiated_overdose": "%1$s overdosed on Lugol's iodine"
+}

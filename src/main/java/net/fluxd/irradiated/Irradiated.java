@@ -2,16 +2,15 @@ package net.fluxd.irradiated;
 
 import com.mojang.logging.LogUtils;
 
-import net.fluxd.irradiated.commands.AreaCommand;
-import net.fluxd.irradiated.commands.ReloadCommand;
+import net.fluxd.irradiated.effects.Effects;
+import net.fluxd.irradiated.items.Items;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+
 import org.slf4j.Logger;
 
 @Mod(Irradiated.MODID)
@@ -23,6 +22,10 @@ public class Irradiated {
     IEventBus modEventBus = context.getModEventBus();
     modEventBus.addListener(this::commonSetup);
 
+    // Register the Deferred Registers
+    Items.ITEMS.register(modEventBus);
+    Effects.MOB_EFFECTS.register(modEventBus);
+
     // Register ourselves for server and other game events we are interested in
     MinecraftForge.EVENT_BUS.register(this);
 
@@ -32,12 +35,6 @@ public class Irradiated {
   }
 
   private void commonSetup(final FMLCommonSetupEvent event) {
-    LOGGER.info("HELLO FROM COMMON SETUP");
-  }
-
-  @SubscribeEvent
-  public void onRegisterCommands(RegisterCommandsEvent event) {
-    new AreaCommand(event.getDispatcher());
-    new ReloadCommand(event.getDispatcher());
+    // LOGGER.info("HELLO FROM COMMON SETUP");
   }
 }

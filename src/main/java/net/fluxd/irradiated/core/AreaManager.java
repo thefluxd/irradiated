@@ -8,14 +8,22 @@ import net.minecraft.server.level.ServerPlayer;
 import java.util.List;
 
 public class AreaManager {
-  public record CurrentAreaResult(String currentName, String approachingName, double distanceToBorder,
+  public static enum AreaType {
+    USER, SPAWN, RADIATION, NONE
+  }
+
+  public record Area(AreaType type, String name) {
+  }
+
+  public record CurrentAreaResult(Area currentArea, Area approachingArea, double distanceToBorder,
       double borderAbsoluteRadius) {
   }
 
   public static CurrentAreaResult getCurrentArea(ServerPlayer player) {
     List<AreaEntry> entries = Config.areaEntries;
     if (entries == null || entries.isEmpty()) {
-      return new CurrentAreaResult("outside", "none", Double.MAX_VALUE, 0);
+      return new CurrentAreaResult(SPAWN_AREA, new Area(AreaType.NONE, "None"), Double.MAX_VALUE,
+          0);
     }
 
     BlockPos spawnPos = player.level().getSharedSpawnPos();
@@ -30,22 +38,27 @@ public class AreaManager {
       int outerRadius = cumulativeRadius + entries.get(i).radius();
 
       if (currentDist <= outerRadius) {
-        String currentName = entries.get(i).name();
+        Area currentArea = entries.get(i).area();
         double distToInner = currentDist - innerRadius;
         double distToOuter = outerRadius - currentDist;
 
         if (distToInner < distToOuter) {
-          String approaching = (i == 0) ? "Spawn" : entries.get(i - 1).name();
-          return new CurrentAreaResult(currentName, approaching, distToInner, innerRadius);
+          Area approachingArea = (i == 0) ? SPAWN_AREA : entries.get(i - 1).area();
+          return new CurrentAreaResult(currentArea, approachingArea, distToInner, innerRadius);
         } else {
-          String approaching = (i == entries.size() - 1) ? "outside" : entries.get(i + 1).name();
-          return new CurrentAreaResult(currentName, approaching, distToOuter, outerRadius);
+          Area approachingArea = (i == entries.size() - 1) ? RADIATION_AREA : entries.get(i + 1).area();
+          return new CurrentAreaResult(currentArea, approachingArea, distToOuter, outerRadius);
         }
       }
       cumulativeRadius = outerRadius;
     }
 
-    return new CurrentAreaResult("outside", entries.get(entries.size() - 1).name(), currentDist - cumulativeRadius,
+    // When in Radiation
+    return new CurrentAreaResult(RADIATION_AREA, entries.get(entries.size() - 1).area(), currentDist - cumulativeRadius,
         cumulativeRadius);
   }
+
+  private static final Area SPAWN_AREA = new Area(AreaType.SPAWN, "Spawn");
+  private static final Area RADIATION_AREA = new Area(AreaType.RADIATION, "&4&lRADIATION");
+  private static final Area NONE_AREA = new Area(AreaType.NONE, "None");
 }

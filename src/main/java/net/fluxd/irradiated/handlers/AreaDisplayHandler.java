@@ -1,7 +1,10 @@
 package net.fluxd.irradiated.handlers;
 
 import net.fluxd.irradiated.Irradiated;
+import net.fluxd.irradiated.Utils;
 import net.fluxd.irradiated.core.AreaManager;
+import net.fluxd.irradiated.core.AreaManager.AreaType;
+import net.fluxd.irradiated.effects.Effects;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
@@ -33,7 +36,7 @@ public class AreaDisplayHandler {
 
   private static final HashMap<UUID, PlayerAreaState> playerStates = new HashMap<>();
   private static final double MESSAGE_DISTANCE_THRESHOLD_M = 15.0;
-  private static final double BORDER_DISTANCE_THRESHOLD_M = 10.0;
+  private static final double BORDER_SPHERE_M = 10.0;
   private static final long ENTERED_DURATION_MS = 1500;
 
   @SubscribeEvent
@@ -44,12 +47,19 @@ public class AreaDisplayHandler {
       long now = System.currentTimeMillis();
 
       AreaManager.CurrentAreaResult result = AreaManager.getCurrentArea(player);
+
+      // Skip showing Spawn
+      if (result.approachingArea().type() == AreaType.SPAWN)
+        return;
+
+      handleRadiation(player, result.currentArea());
+
       PlayerAreaState state = playerStates.get(uuid);
 
-      boolean areaChanged = (state == null || !result.currentName().equals(state.lastAreaName));
+      boolean areaChanged = (state == null || !result.currentArea().name().equals(state.lastAreaName));
 
       if (areaChanged) {
-        state = new PlayerAreaState(result.currentName(), now + ENTERED_DURATION_MS);
+        state = new PlayerAreaState(result.currentArea().name(), now + ENTERED_DURATION_MS);
         playerStates.put(uuid, state);
         playAreaSound(player);
         displayMessage(player, result, true);
@@ -73,7 +83,7 @@ public class AreaDisplayHandler {
     if (player.tickCount % 2 != 0)
       return;
 
-    double viewRadius = BORDER_DISTANCE_THRESHOLD_M; // How large is the "sphere of visibility" around the player?
+    double viewRadius = BORDER_SPHERE_M; // How large is the "sphere of visibility" around the player?
     double angleStepSize = 0.5;
 
     BlockPos spawnPos = player.level().getSharedSpawnPos();
@@ -130,13 +140,24 @@ public class AreaDisplayHandler {
     }
   }
 
+  // TODO: move to seperate file
+  private static void handleRadiation(ServerPlayer player, AreaManager.Area currentArea) {
+    // Limit to 4 times per second (for performance?)
+    if (player.tickCount % 5 != 0)
+      return;
+
+    if (currentArea.type() == AreaType.RADIATION) {
+      player.addEffect(Effects.radiationInstance(50)); // 2.5 sec
+    }
+  }
+
   private static void displayMessage(ServerPlayer player, AreaManager.CurrentAreaResult result, boolean isAnnouncing) {
     Component message;
     if (isAnnouncing) {
-      String formattedName = result.currentName().replace('&', '§');
+      String formattedName = Utils.formatString(result.currentArea().name());
       message = Component.literal("§eEntered: ").append(Component.literal(formattedName));
     } else {
-      String formattedApproaching = result.approachingName().replace('&', '§');
+      String formattedApproaching = Utils.formatString(result.approachingArea().name());
       message = Component.literal("§7Approaching: ")
           .append(Component.literal(formattedApproaching))
           .append(Component.literal(String.format(" §7(%.1fm)", result.distanceToBorder())));

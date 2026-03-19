@@ -1,5 +1,6 @@
 package net.fluxd.irradiated;
 
+import net.fluxd.irradiated.core.AreaManager;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +38,7 @@ public class Config {
           String[] parts = pair.split(":", 2);
           int radius = Integer.parseInt(parts[0].trim());
           String name = parts[1].trim();
-          return new AreaEntry(radius, name);
+          return new AreaEntry(radius, new AreaManager.Area(AreaManager.AreaType.USER, name));
         }).collect(Collectors.toList());
   }
 
@@ -49,6 +50,6 @@ public class Config {
     }
   }
 
-  public record AreaEntry(int radius, String name) {
+  public record AreaEntry(int radius, AreaManager.Area area) {
   }
 }
