@@ -22,7 +22,7 @@ public class AreaManager {
   public static CurrentAreaResult getCurrentArea(ServerPlayer player) {
     List<AreaEntry> entries = Config.areaEntries;
     if (entries == null || entries.isEmpty()) {
-      return new CurrentAreaResult(SPAWN_AREA, new Area(AreaType.NONE, "None"), Double.MAX_VALUE,
+      return new CurrentAreaResult(SPAWN_AREA, NONE_AREA, Double.MAX_VALUE,
           0);
     }
 

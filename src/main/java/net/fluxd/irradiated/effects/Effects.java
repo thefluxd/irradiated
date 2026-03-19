@@ -29,7 +29,7 @@ public class Effects {
 
   // INSTANCES
   public static MobEffectInstance radiationInstance(int duration) {
-    return new MobEffectInstance(RADIATION.get(), duration, 0, false, false, false);
+    return new MobEffectInstance(RADIATION.get(), duration, 0, true, true, true);
   }
 
   public static MobEffectInstance protectionInstance(int duration) {
@@ -41,7 +41,7 @@ public class Effects {
   }
 
   public static MobEffectInstance overdoseInstance(int duration) {
-    return new MobEffectInstance(OVERDOSE.get(), duration, 0, false, false, false);
+    return new MobEffectInstance(OVERDOSE.get(), duration, 0, false, true, true);
   }
 
 }
