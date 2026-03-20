@@ -16,7 +16,7 @@ public class OverdoseEffect extends MobEffect {
     super(MobEffectCategory.HARMFUL, COLOR);
   }
 
-  private static final float DAMAGE_H = 3.0F;
+  private static final float DAMAGE_H = 1.0F;
   private static final int DELAY_T = 10;
 
   @Override
