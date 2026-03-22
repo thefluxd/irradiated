@@ -54,8 +54,10 @@ public class AreaConfigEntry implements IConfigEntry {
   @Override
   public void setToDefaults() {
     areasByDimension.clear();
-    areasByDimension.put("minecraft:overworld",
-        List.of(new AreaEntry(100, new AreaManager.Area(AreaManager.AreaType.USER, "Safety"))));
+    // Dont add areas by default
+    // areasByDimension.put("minecraft:overworld",
+    // List.of(new AreaEntry(100, new AreaManager.Area(AreaManager.AreaType.USER,
+    // "Safety"))));
   }
 
   @Override
