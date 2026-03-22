@@ -21,7 +21,8 @@ public class ModCommand implements ICommand {
   public LiteralArgumentBuilder<CommandSourceStack> register() {
     return Commands.literal(Irradiated.MODID)
         .executes(this::execute)
-        .then(new ReloadCommand().register());
+        .then(new ReloadCommand().register())
+        .then(new AreaCommand().register()); // Alias of /area
   }
 
   public int execute(CommandContext<CommandSourceStack> context) {
