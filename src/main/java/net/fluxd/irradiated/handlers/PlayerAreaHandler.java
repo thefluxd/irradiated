@@ -43,10 +43,6 @@ public class PlayerAreaHandler {
 
       AreaManager.CurrentAreaResult result = AreaManager.getCurrentArea(player);
 
-      // Skip on Spawn
-      if (result.approachingArea().type() == AreaType.SPAWN)
-        return;
-
       PlayerAreaState state = playerStates.get(uuid);
       if (state == null)
         return;
@@ -59,6 +55,9 @@ public class PlayerAreaHandler {
       }
 
       boolean isNearBorder = result.distanceToBorder() < DISTANCE_THRESHOLD_M;
+      // Skip on Spawn, dump hack but works
+      if (result.approachingArea().type() == AreaType.SPAWN)
+        isNearBorder = false;
 
       handleRadiation(player, result.currentArea());
       BorderParticleDisplay.handle(player, result, isNearBorder);
