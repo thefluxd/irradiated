@@ -28,8 +28,8 @@ public class Effects {
   }
 
   // INSTANCES
-  public static MobEffectInstance radiationInstance(int duration) {
-    return new MobEffectInstance(RADIATION.get(), duration, 0, true, true, true);
+  public static MobEffectInstance radiationInstance(int duration, int amplifier) {
+    return new MobEffectInstance(RADIATION.get(), duration, amplifier, true, true, true);
   }
 
   public static MobEffectInstance protectionInstance(int duration) {

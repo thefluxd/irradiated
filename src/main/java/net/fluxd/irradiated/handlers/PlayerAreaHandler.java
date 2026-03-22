@@ -59,16 +59,18 @@ public class PlayerAreaHandler {
       if (result.approachingArea().type() == AreaType.SPAWN)
         isNearBorder = false;
 
-      handleRadiation(player, result.currentArea());
+      handleRadiation(player, result);
       BorderParticleDisplay.handle(player, result, isNearBorder);
       BorderMessageDisplay.handle(player, result, state, isNearBorder);
     }
   }
 
-  private static void handleRadiation(ServerPlayer player, AreaManager.Area currentArea) {
+  private static void handleRadiation(ServerPlayer player, AreaManager.CurrentAreaResult result) {
     // Limit to 4 times per second (for performance?)
-    if (player.tickCount % 5 != 0 && currentArea.type() == AreaType.RADIATION) {
-      player.addEffect(Effects.radiationInstance(50)); // 2.5 sec
+    if (player.tickCount % 5 != 0 && result.currentArea().type() == AreaType.RADIATION) {
+      double tb = result.distanceToBorder();
+      int amplifier = tb < 10 ? 0 : tb < 30 ? 1 : tb < 80 ? 2 : tb < 150 ? 3 : 4;
+      player.addEffect(Effects.radiationInstance(50, amplifier)); // 2.5 sec
     }
   }
 

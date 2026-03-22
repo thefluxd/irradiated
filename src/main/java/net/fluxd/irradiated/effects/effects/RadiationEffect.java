@@ -23,7 +23,7 @@ public class RadiationEffect extends MobEffect {
   @Override
   public void applyEffectTick(LivingEntity entity, int amplifier) {
     if (!entity.hasEffect(Effects.PROTECTION.get()) && entity.getHealth() > 0) {
-      entity.hurt(ModDamageSources.getRadiationDamageSource(entity.level()), DAMAGE_H);
+      entity.hurt(ModDamageSources.getRadiationDamageSource(entity.level()), DAMAGE_H * amplifier);
     }
   }
 
