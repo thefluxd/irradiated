@@ -29,3 +29,9 @@ The radius of the area is additive, so the second area in the example has a radi
 Area name supports Minecraft's color codes.
 Radiation appears after the set areas. If areas for dimension are not set, radiation is disabled.
 In `overworld` and `the_nether` dimension, center position is taken from world spawn (in `the_nether` divided by 8), otherwise its `0, 0`.
+
+## Commands
+
+- `/area`, `/irradiated area` – shows name of current area
+- `/irradiated` – shows version of this mod
+- `/irradiated reload` – reloads configuration
