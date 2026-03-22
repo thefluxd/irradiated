@@ -1,7 +1,6 @@
 # TODOs
 
-- fix reload command
-
 - change radiation particles
-- add more config options
-- make it multi dimensional
+- amplify radiation farther from border, cuz u can survive whin golden apples
+- add open page in about command
+- fix `entered` message not displaying sometimes when changing dimensions

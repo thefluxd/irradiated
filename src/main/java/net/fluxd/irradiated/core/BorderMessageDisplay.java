@@ -25,7 +25,7 @@ public class BorderMessageDisplay {
     Component message;
     if (isAnnouncing) {
       String formattedName = Utils.formatString(result.currentArea().name());
-      message = Component.literal("§eEntered: ").append(Component.literal(formattedName));
+      message = Component.literal("§7Entered: ").append(Component.literal(formattedName));
     } else {
       String formattedApproaching = Utils.formatString(result.approachingArea().name());
       message = Component.literal("§7Approaching: ")

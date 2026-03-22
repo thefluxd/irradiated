@@ -1,5 +1,6 @@
 package net.fluxd.irradiated.items;
 
+import net.fluxd.irradiated.config.Config;
 import net.fluxd.irradiated.effects.Effects;
 import net.fluxd.irradiated.effects.effects.ProtectionEffect;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -18,9 +19,7 @@ import net.minecraft.world.level.Level;
 
 public class LugolsIodineItem extends Item {
   public static final int COLOR = ProtectionEffect.COLOR;
-  public static final int RADIATION_PROTECTION_T = 72000; // 1h
-  public static final int WEAKENED_T = 144000; // 2h
-  // TODO: move to mod config
+  public static final int OVERDOSE_T = 3600; // 3m
 
   public LugolsIodineItem() {
     super(new Item.Properties().stacksTo(1).craftRemainder(Items.GLASS_BOTTLE));
@@ -30,10 +29,10 @@ public class LugolsIodineItem extends Item {
   public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
     if (!level.isClientSide) {
       if (entity.hasEffect(Effects.WEAKENED.get())) {
-        entity.addEffect(Effects.overdoseInstance(Integer.MAX_VALUE));
+        entity.addEffect(Effects.overdoseInstance(OVERDOSE_T));
       } else {
-        entity.addEffect(Effects.protectionInstance(RADIATION_PROTECTION_T));
-        entity.addEffect(Effects.weakenedInstance(WEAKENED_T));
+        entity.addEffect(Effects.protectionInstance(Config.LUGOLS_IODINE_PROTECTION_TIME.getValue() * 20));
+        entity.addEffect(Effects.weakenedInstance(Config.LUGOLS_IODINE_WEAKENED_TIME.getValue() * 20));
       }
     }
 

@@ -37,7 +37,7 @@ public class ModCommand implements ICommand {
 
     Component message = Component.empty()
         .append(Component.literal("--- ").withStyle(ChatFormatting.GRAY))
-        .append(Component.literal(name).withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD))
+        .append(Component.literal(name).withStyle(ChatFormatting.WHITE))
         .append(Component.literal(" ---").withStyle(ChatFormatting.GRAY))
         .append("\n")
         .append(Component.literal("Version: ").withStyle(ChatFormatting.YELLOW))
@@ -45,6 +45,7 @@ public class ModCommand implements ICommand {
         .append("\n")
         .append(Component.literal("Author: ").withStyle(ChatFormatting.YELLOW))
         .append(Component.literal(authors).withStyle(ChatFormatting.WHITE))
+        .append("\n")
         .append(Component.literal("fluxd on a server?!").withStyle(ChatFormatting.GRAY));
 
     context.getSource().sendSuccess(() -> message, false);
