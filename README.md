@@ -35,3 +35,7 @@ In `overworld` and `the_nether` dimension, center position is taken from world s
 - `/area`, `/irradiated area` – shows name of current area
 - `/irradiated` – shows version of this mod
 - `/irradiated reload` – reloads configuration
+
+## Big thanks to
+
+- **CoastalCookie** – for making textures for effect icons
