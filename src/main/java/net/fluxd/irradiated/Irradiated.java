@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 
 import net.fluxd.irradiated.config.Config;
 import net.fluxd.irradiated.effects.Effects;
+import net.fluxd.irradiated.items.BrewingRecipes;
 import net.fluxd.irradiated.items.Items;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -50,5 +51,10 @@ public class Irradiated {
       LOGGER.error("Using default/previous valid values for invalid entries.");
       LOGGER.error("====================================================");
     }
+    // Config loaded
+
+    event.enqueueWork(() -> {
+      BrewingRecipes.register();
+    });
   }
 }
